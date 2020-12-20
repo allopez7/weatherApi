@@ -3,18 +3,24 @@ import React, { useState } from "react";
 import Weather from "./Components/Weather";
 
 function App() {
-  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
   const [weatherInfo, setWeatherInfo] = useState({});
   const cityInput = (e) => {
-    setCity(e.target.value);
+    setZip(e.target.value);
   };
   const getWeather = () => {
+    if("geolocation" in navigator){
+      console.log(navigator.geolocation)
+      // geolocation is made available by user
+    }else{
+      // goelocation not available, get by zip
+    }
     fetch("/weather", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ city: city }),
+      body: JSON.stringify({ zip: zip }),
     })
       .then((r) => r.json())
       .then((weatherData) => {
@@ -40,14 +46,14 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>Look up the weather in your city!</h1>
+        <h1>Look up the weather in your zip code!</h1>
       </header>
       <main>
         <div>
           <div>
             <input
               className="weather-input"
-              placeholder="Enter your city name here"
+              placeholder="Enter your zip code here"
               onChange={cityInput}
               required
             />
