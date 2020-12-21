@@ -9,11 +9,9 @@ function App() {
     setZip(e.target.value);
   };
   const getWeather = () => {
-    if("geolocation" in navigator){
-      console.log(navigator.geolocation)
-      // geolocation is made available by user
-    }else{
-      // goelocation not available, get by zip
+    if(zip.length===0){
+      setWeatherInfo({noZip: 'Enter a zip code'}) 
+      return 
     }
     fetch("/weather", {
       method: "POST",
@@ -24,23 +22,29 @@ function App() {
     })
       .then((r) => r.json())
       .then((weatherData) => {
-        setWeatherInfo(weatherData.express);
+        if(!weatherData || !weatherData.data) {
+          setWeatherInfo({cod: "404"})
+          return
+        }
+        setWeatherInfo(weatherData.data);
       })
       .catch((err) => {
-        setWeatherInfo(err.express);
+        setWeatherInfo(err.data);
       });
   };
-  const { cod, message } = weatherInfo;
+  const {cod, message, noZip} = weatherInfo;
   const errorMessage404 = <div className="error-message">{message}</div>;
   const errorMessage400 = (
-    <div className="error-message">Enter a city name</div>
+    <div className="error-message">Enter a zip code</div>
   );
   let displayWeather;
   if (cod === "404") {
     displayWeather = errorMessage404;
   } else if (cod === "400") {
     displayWeather = errorMessage400;
-  } else {
+  }else if(noZip && noZip.length > 0){
+    displayWeather = errorMessage400
+  }else {
     displayWeather = <Weather props={weatherInfo} />;
   }
   return (
